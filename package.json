@@ -10,24 +10,26 @@
     "typecheck": "tsc --noEmit",
     "dev:typecheck": "tsc --noEmit --watch",
     "check": "npm run typecheck && npm run lint && npm run build",
-    "postinstall": "[ -d '.git' ] && husky install || true"
+    "postinstall": "node -e \"try { require('fs').accessSync('.git', require('fs').constants.F_OK); process.exit(0); } catch(e) { process.exit(1); }\" && husky install || exit 0"
   },
   "dependencies": {
-    "next": "15.1.7",
-    "next-themes": "^0.4.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tailwindcss": "^3.4.1",
-    "postcss": "^8",
-    "autoprefixer": "^10.0.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.0.1",
+    "next": "15.1.7",
+    "next-themes": "^0.4.4",
+    "postcss": "^8",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^3.4.1",
+    "together-ai": "^0.13.0",
     "typescript": "^5"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.56.0",
     "eslint-config-next": "15.1.7",
     "husky": "^8.0.0"
   }

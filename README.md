@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Weather AI Assistant
+
+An intelligent weather assistant powered by Next.js, OpenWeather API, and Together AI's Llama model.
+
+## Features
+
+- 🌡️ Real-time weather data from OpenWeather API
+- 🤖 AI-powered weather insights using Llama 3.3
+- 🌍 Global weather coverage
+- 🎨 Dark/Light theme support
+- 📱 Responsive design
+- 💬 Natural language interaction
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/weather-ai-v2.git
+cd weather-ai-v2
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env.local` file with your API keys:
+
+```env
+NEXT_PUBLIC_OPENWEATHER_API_KEY=your_openweather_api_key
+TOGETHER_API_KEY=your_together_ai_key
+```
+
+4. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `NEXT_PUBLIC_OPENWEATHER_API_KEY`: Get from [OpenWeather](https://home.openweathermap.org/api_keys)
+- `TOGETHER_API_KEY`: Get from [Together AI](https://api.together.ai)
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- [Next.js 14](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Together AI](https://www.together.ai/)
+- [OpenWeather API](https://openweathermap.org/api)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# Run development server
+npm run dev
 
-## Deploy on Vercel
+# Type checking
+npm run typecheck
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Linting
+npm run lint
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Build
+npm run build
+```
+
+## Deployment
+
+The app is optimized for deployment on Vercel. Simply push to your GitHub repository and connect it to Vercel for automatic deployments.
+
+## License
+
+MIT License - feel free to use this project for your own purposes.

@@ -232,22 +232,19 @@ Wind Speed: ${processedWeatherData.wind_speed} mph`;
         }
 
         // Enhanced Llama prompt with better context
-        const llamaResponse = await fetch(
-          'http://localhost:11434/api/generate',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              model: 'llama3.2',
-              prompt: `You are a helpful weather assistant. Here's the detailed context:
+        const llamaResponse = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: `You are a helpful weather assistant. Here's the detailed context:
 
 Location Context:
 - Current Location: ${locationContext.current || 'Unknown'}
 - Previous Location: ${locationContext.previous || 'None'}
 - Recent Locations: ${weatherContext
-                .slice(-3)
-                .map((w) => w.location)
-                .join(', ')}
+              .slice(-3)
+              .map((w) => w.location)
+              .join(', ')}
 
 Conversation History:
 ${messages
@@ -271,18 +268,18 @@ Instructions:
 3. Keep responses conversational but brief (1-2 sentences)
 4. Acknowledge location changes when they occur
 5. Use the most recent weather data available`,
-              stream: false,
-            }),
-          }
-        );
+          }),
+        });
 
         if (!llamaResponse.ok) {
-          console.error('Llama API Error:', await llamaResponse.text());
-          throw new Error(`Llama API error: ${llamaResponse.statusText}`);
+          throw new Error(`API error: ${llamaResponse.statusText}`);
         }
 
         const data = await llamaResponse.json();
-        console.log('Llama Response:', data);
+
+        if (data.error) {
+          throw new Error(data.details || data.error);
+        }
 
         setMessages((prev) => [
           ...prev,
@@ -297,7 +294,10 @@ Instructions:
         setMessages((prev) => [
           ...prev,
           {
-            text: 'Sorry, I encountered an error. Please try again.',
+            text:
+              error instanceof Error
+                ? `Error: ${error.message}`
+                : 'Sorry, I encountered an error. Please try again.',
             type: 'ai',
           },
         ]);
@@ -353,40 +353,34 @@ Instructions:
       </div>
 
       {/* Add a scrollable container with fixed height */}
-      <div className='overflow-y-auto max-h-[60vh] p-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent'>
-        {messages.map((msg, idx) => (
+      <div className='flex-1 overflow-y-auto max-h-[400px] space-y-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700'>
+        {messages.map((msg, index) => (
           <div
-            key={idx}
-            className={`p-2 sm:p-3 rounded-lg ${
+            key={index}
+            className={`${
+              msg.type === 'user' ? 'ml-auto' : ''
+            } max-w-[85%] p-3 rounded-xl ${
               msg.type === 'user'
-                ? 'bg-blue-50 dark:bg-blue-900/30 ml-2 sm:ml-4'
+                ? 'bg-blue-500 text-white ml-auto'
                 : msg.type === 'weather'
-                ? 'bg-gray-50 dark:bg-gray-700'
-                : 'bg-gray-50 dark:bg-gray-700 mr-2 sm:mr-4'
+                ? 'bg-gray-100 dark:bg-gray-800'
+                : 'bg-gray-200 dark:bg-gray-700'
             }`}
           >
             {msg.type === 'weather' && msg.data ? (
-              <div className='bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-lg shadow-sm'>
-                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1'>
-                  <div className='flex items-center gap-2'>
-                    <WeatherIcon
-                      icon={msg.data.icon}
-                      condition={msg.data.condition}
-                    />
-                    <span className='text-xl sm:text-2xl font-bold text-sky-800 dark:text-sky-200'>
-                      {msg.data.temperature}°F
-                    </span>
-                  </div>
-                  <span className='text-base sm:text-lg text-sky-600 dark:text-sky-300 capitalize'>
-                    {msg.data.condition}
+              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1'>
+                <div className='flex items-center gap-2'>
+                  <WeatherIcon
+                    icon={msg.data.icon}
+                    condition={msg.data.condition}
+                  />
+                  <span className='text-xl sm:text-2xl font-bold text-sky-800 dark:text-sky-200'>
+                    {msg.data.temperature}°F
                   </span>
                 </div>
-                <div className='text-gray-600 dark:text-gray-300 text-xs sm:text-sm'>
-                  <div className='flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0'>
-                    <span>Feels like: {msg.data.feels_like}°F</span>
-                    <span>Wind: {msg.data.wind_speed} mph</span>
-                  </div>
-                </div>
+                <span className='text-base sm:text-lg text-sky-600 dark:text-sky-300 capitalize'>
+                  {msg.data.condition}
+                </span>
               </div>
             ) : (
               <div
