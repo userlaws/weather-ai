@@ -170,81 +170,84 @@ const Home: React.FC = () => {
     return null;
   };
 
+  const fetchWeatherData = async (
+    location: string
+  ): Promise<WeatherData | null> => {
+    try {
+      const geoResponse = await fetch(
+        `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(
+          location
+        )}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`
+      );
+      const geoData = await geoResponse.json();
+
+      if (geoData.length > 0) {
+        const { lat, lon } = geoData[0];
+        const weatherResponse = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`
+        );
+        const weatherData = await weatherResponse.json();
+
+        return {
+          temperature: Math.round(weatherData.main.temp),
+          feels_like: Math.round(weatherData.main.feels_like),
+          condition: weatherData.weather[0].main,
+          humidity: weatherData.main.humidity,
+          wind_speed: Math.round(weatherData.wind.speed),
+          icon: weatherData.weather[0].icon,
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Weather API error:', error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
+    if (!query.trim() || isLoading) return;
+
+    try {
       setIsLoading(true);
-      try {
-        setMessages((prev) => [...prev, { text: query, type: 'user' }]);
+      const location = getLocation(query);
+      let weatherInfo = '';
 
-        const location = getLocation(query);
-        let weatherInfo = '';
+      if (location) {
+        const weatherData = await fetchWeatherData(location);
+        if (weatherData) {
+          weatherInfo = `Current weather in ${location}:
+Temperature: ${weatherData.temperature}°F
+Feels like: ${weatherData.feels_like}°F
+Condition: ${weatherData.condition}
+Wind Speed: ${weatherData.wind_speed} mph`;
 
-        if (location) {
-          try {
-            const geoResponse = await fetch(
-              `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(
-                location
-              )}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`
-            );
-            const geoData = await geoResponse.json();
-
-            if (geoData.length > 0) {
-              const { lat, lon } = geoData[0];
-              const weatherResponse = await fetch(
-                `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`
-              );
-              const weatherData = await weatherResponse.json();
-
-              const processedWeatherData: WeatherData = {
-                temperature: Math.round(weatherData.main.temp),
-                feels_like: Math.round(weatherData.main.feels_like),
-                condition: weatherData.weather[0].main,
-                humidity: weatherData.main.humidity,
-                wind_speed: Math.round(weatherData.wind.speed),
-                icon: weatherData.weather[0].icon,
-              };
-
-              // Add to weather context
-              addWeatherContext(location, processedWeatherData);
-
-              setMessages((prev) => [
-                ...prev,
-                {
-                  type: 'weather',
-                  location,
-                  data: processedWeatherData,
-                  text: `Weather in ${location}`,
-                },
-              ]);
-
-              weatherInfo = `Current weather in ${location}:
-Temperature: ${processedWeatherData.temperature}°F
-Feels like: ${processedWeatherData.feels_like}°F
-Condition: ${processedWeatherData.condition}
-Humidity: ${processedWeatherData.humidity}%
-Wind Speed: ${processedWeatherData.wind_speed} mph`;
-            }
-          } catch (weatherError) {
-            console.error('Weather API error:', weatherError);
-            weatherInfo = 'Sorry, I could not fetch the weather data.';
-          }
+          setMessages((prev) => [
+            ...prev,
+            { type: 'user', text: query },
+            {
+              type: 'weather',
+              data: weatherData,
+              location: location,
+            },
+          ]);
         }
+      }
 
-        // Enhanced Llama prompt with better context
-        const llamaResponse = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: `You are a helpful weather assistant. Here's the detailed context:
+      // Enhanced Llama prompt with better context
+      const llamaResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `You are a helpful weather assistant. Here's the detailed context:
 
 Location Context:
 - Current Location: ${locationContext.current || 'Unknown'}
 - Previous Location: ${locationContext.previous || 'None'}
 - Recent Locations: ${weatherContext
-              .slice(-3)
-              .map((w) => w.location)
-              .join(', ')}
+            .slice(-3)
+            .map((w) => w.location)
+            .join(', ')}
 
 Conversation History:
 ${messages
@@ -268,42 +271,38 @@ Instructions:
 3. Keep responses conversational but brief (1-2 sentences)
 4. Acknowledge location changes when they occur
 5. Use the most recent weather data available`,
-          }),
-        });
+        }),
+      });
 
-        if (!llamaResponse.ok) {
-          throw new Error(`API error: ${llamaResponse.statusText}`);
-        }
-
-        const data = await llamaResponse.json();
-
-        if (data.error) {
-          throw new Error(data.details || data.error);
-        }
-
-        setMessages((prev) => [
-          ...prev,
-          {
-            text: data.response || 'No response from AI',
-            type: 'ai',
-          },
-        ]);
-        setQuery('');
-      } catch (error) {
-        console.error('Error in handleSubmit:', error);
-        setMessages((prev) => [
-          ...prev,
-          {
-            text:
-              error instanceof Error
-                ? `Error: ${error.message}`
-                : 'Sorry, I encountered an error. Please try again.',
-            type: 'ai',
-          },
-        ]);
-      } finally {
-        setIsLoading(false);
+      if (!llamaResponse.ok) {
+        throw new Error(`API error: ${llamaResponse.statusText}`);
       }
+
+      const data = await llamaResponse.json();
+
+      if (data.error) {
+        throw new Error(data.details || data.error);
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: data.response || 'No response from AI',
+          type: 'ai',
+        },
+      ]);
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: 'ai',
+          text: 'Sorry, I encountered an error fetching weather data. Please try again.',
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+      setQuery('');
     }
   };
 
@@ -368,19 +367,31 @@ Instructions:
             }`}
           >
             {msg.type === 'weather' && msg.data ? (
-              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1'>
+              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
                 <div className='flex items-center gap-2'>
-                  <WeatherIcon
-                    icon={msg.data.icon}
-                    condition={msg.data.condition}
-                  />
-                  <span className='text-xl sm:text-2xl font-bold text-sky-800 dark:text-sky-200'>
+                  <div className='relative w-10 h-10'>
+                    <Image
+                      src={`https://openweathermap.org/img/w/${msg.data.icon}.png`}
+                      alt={msg.data.condition}
+                      fill
+                      sizes='40px'
+                      className='object-contain'
+                      priority
+                    />
+                  </div>
+                  <span className='text-lg font-semibold'>
                     {msg.data.temperature}°F
                   </span>
+                  <span className='text-sm text-gray-600 dark:text-gray-300'>
+                    {msg.data.condition}
+                  </span>
                 </div>
-                <span className='text-base sm:text-lg text-sky-600 dark:text-sky-300 capitalize'>
-                  {msg.data.condition}
-                </span>
+                <div className='text-sm text-gray-600 dark:text-gray-300'>
+                  <div className='flex flex-col sm:flex-row gap-2'>
+                    <span>Feels like: {msg.data.feels_like}°F</span>
+                    <span>Wind: {msg.data.wind_speed} mph</span>
+                  </div>
+                </div>
               </div>
             ) : (
               <div

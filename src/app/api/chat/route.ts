@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         {
           role: 'system',
           content:
-            'You are a helpful weather assistant that provides concise and accurate weather information. When users ask about weather, provide relevant details about temperature, conditions, and recommendations.',
+            'You are a helpful weather assistant that provides concise and accurate weather information. When users ask about weather, first acknowledge their location request, then provide details about temperature, conditions, and practical recommendations based on the weather data shown in the chat. Reference any weather data cards shown in the conversation for accuracy.',
         },
         {
           role: 'user',
