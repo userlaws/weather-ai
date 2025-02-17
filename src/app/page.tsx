@@ -547,7 +547,7 @@ Instructions:
           'Powered by Advanced Weather AI Technology'
         )}
         <a
-          href='https://github.com/yourusername/weather-ai-v2'
+          href='https://github.com/userlaws/weather-ai'
           target='_blank'
           rel='noopener noreferrer'
           className='ml-2 inline-flex items-center hover:text-gray-900 dark:hover:text-white'
