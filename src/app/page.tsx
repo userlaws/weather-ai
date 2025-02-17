@@ -346,30 +346,31 @@ Instructions:
 
   // Update the message display to use the WeatherIcon component
   const MessageDisplay = () => (
-    <div className='fixed bottom-16 right-0 left-0 mx-4 md:mx-0 md:right-8 md:left-auto md:w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700'>
+    <div className='fixed bottom-16 right-0 left-0 mx-4 md:mx-0 md:right-8 md:left-auto md:w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700'>
       <div className='p-4 border-b border-gray-200 dark:border-gray-700'>
         <h2 className='text-lg font-semibold text-gray-900 dark:text-white'>
           Chat History
         </h2>
       </div>
 
-      {/* Add a scrollable container with fixed height */}
-      <div className='flex-1 overflow-y-auto max-h-[400px] space-y-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700'>
+      {/* Update the message container styles */}
+      <div className='overflow-y-auto max-h-[600px] p-4'>
         {messages.map((msg, index) => (
           <div
             key={index}
             className={`${
               msg.type === 'user' ? 'ml-auto' : ''
-            } max-w-[85%] p-3 rounded-xl ${
+            } max-w-[90%] p-3 mb-3 rounded-xl ${
               msg.type === 'user'
-                ? 'bg-blue-500 text-white ml-auto'
+                ? 'bg-blue-500 text-white'
                 : msg.type === 'weather'
                 ? 'bg-gray-100 dark:bg-gray-800'
                 : 'bg-gray-200 dark:bg-gray-700'
             }`}
           >
             {msg.type === 'weather' && msg.data ? (
-              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+              // Weather message content
+              <div className='flex flex-col space-y-2'>
                 <div className='flex items-center gap-2'>
                   <div className='relative w-10 h-10'>
                     <Image
@@ -381,29 +382,32 @@ Instructions:
                       priority
                     />
                   </div>
-                  <span className='text-lg font-semibold'>
-                    {msg.data.temperature}°F
-                  </span>
-                  <span className='text-sm text-gray-600 dark:text-gray-300'>
-                    {msg.data.condition}
-                  </span>
+                  <div className='flex flex-col'>
+                    <span className='text-lg font-semibold'>
+                      {msg.data.temperature}°F
+                    </span>
+                    <span className='text-sm text-gray-600 dark:text-gray-300'>
+                      {msg.data.condition}
+                    </span>
+                  </div>
                 </div>
                 <div className='text-sm text-gray-600 dark:text-gray-300'>
-                  <div className='flex flex-col sm:flex-row gap-2'>
+                  <div className='flex flex-col gap-1'>
                     <span>Feels like: {msg.data.feels_like}°F</span>
                     <span>Wind: {msg.data.wind_speed} mph</span>
                   </div>
                 </div>
               </div>
             ) : (
+              // Text message content
               <div
                 className={`${
                   msg.type === 'user'
-                    ? 'text-gray-800 dark:text-gray-200'
+                    ? 'text-white'
                     : 'text-gray-700 dark:text-gray-300'
                 } ${
-                  msg.type === 'ai' ? 'text-xs sm:text-sm italic' : ''
-                } break-words`}
+                  msg.type === 'ai' ? 'text-sm' : ''
+                } break-words whitespace-pre-wrap`}
               >
                 {msg.type === 'user' ? `🙋 ${msg.text}` : msg.text}
               </div>
