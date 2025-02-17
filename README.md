@@ -5,7 +5,7 @@ An intelligent weather assistant powered by Next.js, OpenWeather API, and Togeth
 ## Features
 
 - 🌡️ Real-time weather data from OpenWeather API
-- 🤖 AI-powered weather insights using Llama 3.3
+- 🤖 AI-powered weather insights using Llama 3.2
 - 🌍 Global weather coverage
 - 🎨 Dark/Light theme support
 - 📱 Responsive design
@@ -16,8 +16,8 @@ An intelligent weather assistant powered by Next.js, OpenWeather API, and Togeth
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/weather-ai-v2.git
-cd weather-ai-v2
+git clone https://github.com/userlaws/weather-ai.git
+cd weather-ai
 ```
 
 2. Install dependencies:
