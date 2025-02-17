@@ -30,7 +30,7 @@ npm install
 
 ```env
 NEXT_PUBLIC_OPENWEATHER_API_KEY=your_openweather_api_key
-TOGETHER_API_KEY=your_together_ai_key
+TOGETHER_API_KEY=your_together_api_key
 ```
 
 4. Run the development server:
@@ -43,8 +43,17 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## Environment Variables
 
-- `NEXT_PUBLIC_OPENWEATHER_API_KEY`: Get from [OpenWeather](https://home.openweathermap.org/api_keys)
-- `TOGETHER_API_KEY`: Get from [Together AI](https://api.together.ai)
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+TOGETHER_API_KEY=your_together_api_key
+NEXT_PUBLIC_OPENWEATHER_API_KEY=your_openweather_api_key
+```
+
+Get your API keys from:
+
+- Together AI: https://api.together.ai
+- OpenWeather: https://home.openweathermap.org/api_keys
 
 ## Tech Stack
 

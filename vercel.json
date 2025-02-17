@@ -1,9 +1,5 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "npm install --force",
-  "framework": "nextjs",
-  "env": {
-    "TOGETHER_API_KEY": "@together_api_key",
-    "NEXT_PUBLIC_OPENWEATHER_API_KEY": "@openweather_api_key"
-  }
+  "framework": "nextjs"
 }
