@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
-  "installCommand": "npm install --omit=dev",
+  "buildCommand": "next build",
+  "installCommand": "npm install --omit=dev --ignore-scripts",
   "framework": "nextjs"
 }

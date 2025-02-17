@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "dev:typecheck": "tsc --noEmit --watch",
     "check": "npm run typecheck && npm run lint && npm run build",
-    "prepare": "if [ -d '.git' ]; then husky install; fi"
+    "postinstall": "[ -d '.git' ] && husky install || true"
   },
   "dependencies": {
     "next": "15.1.7",
