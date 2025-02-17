@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "dev:typecheck": "tsc --noEmit --watch",
+    "check": "npm run typecheck && npm run lint && npm run build",
+    "prepare": "husky install"
   },
   "dependencies": {
     "next": "15.1.7",

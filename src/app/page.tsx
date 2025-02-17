@@ -4,20 +4,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 
+// Update global WebChat interface with proper types
 declare global {
   interface Window {
     WebChat: {
-      default: any;
-      send?: any;
-      toggle?: () => void;
+      default: {
+        send: (message: { text: string }) => void;
+        toggle: () => void;
+      };
     };
-    rasaWebchatInstance?: any;
+    rasaWebchatInstance?: {
+      send: (message: { text: string }) => void;
+      toggle: () => void;
+    };
   }
-}
-
-interface LlamaResponse {
-  response: string;
-  context?: string;
 }
 
 interface WeatherData {
@@ -44,7 +44,6 @@ interface Message {
   location?: string;
 }
 
-// Add new interfaces for better type safety
 interface LocationContext {
   current: string | null;
   previous: string | null;
@@ -60,16 +59,14 @@ interface WeatherContext {
 const Home: React.FC = () => {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isWidgetReady, setIsWidgetReady] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [userLocation, setUserLocation] = useState<GeoLocation | null>(null);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
+  const [userLocation] = useState<GeoLocation | null>(null);
   const [showInstructions, setShowInstructions] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Add new state management
+  // Location context state
   const [locationContext, setLocationContext] = useState<LocationContext>({
     current: null,
     previous: null,
@@ -310,6 +307,43 @@ Instructions:
     }
   };
 
+  // Update the weather display to use next/image
+  const WeatherIcon = ({
+    icon,
+    condition,
+  }: {
+    icon: string;
+    condition: string;
+  }) => (
+    <Image
+      src={`https://openweathermap.org/img/wn/${icon}@2x.png`}
+      alt={condition}
+      width={40}
+      height={40}
+      className='w-10 h-10 sm:w-12 sm:h-12'
+    />
+  );
+
+  // Update the instructions text to fix escape characters
+  const instructions = [
+    {
+      text: 'If you want the visual representation of the weather then you have to include the word weather. (e.g., &quot;What&apos;s the weather in NYC?&quot;)',
+    },
+    {
+      text: 'Ask about weather in any city (e.g., &quot;What&apos;s the weather in Tokyo?&quot;)',
+    },
+    {
+      text: 'Compare weather between cities',
+    },
+    {
+      text: 'Ask about specific conditions (temperature, wind, etc.)',
+    },
+    {
+      text: 'Get real-time weather updates',
+    },
+  ];
+
+  // Update the message display to use the WeatherIcon component
   const MessageDisplay = () => (
     <div className='fixed bottom-16 right-0 left-0 mx-4 md:mx-0 md:right-8 md:left-auto md:w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700'>
       <div className='p-4 border-b border-gray-200 dark:border-gray-700'>
@@ -335,12 +369,9 @@ Instructions:
               <div className='bg-white dark:bg-gray-800 p-2 sm:p-3 rounded-lg shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1'>
                   <div className='flex items-center gap-2'>
-                    <img
-                      src={`https://openweathermap.org/img/wn/${msg.data.icon}@2x.png`}
-                      alt={msg.data.condition}
-                      width={40}
-                      height={40}
-                      className='w-10 h-10 sm:w-12 sm:h-12'
+                    <WeatherIcon
+                      icon={msg.data.icon}
+                      condition={msg.data.condition}
                     />
                     <span className='text-xl sm:text-2xl font-bold text-sky-800 dark:text-sky-200'>
                       {msg.data.temperature}°F
@@ -417,18 +448,12 @@ Instructions:
               </button>
             </div>
             <ul className='space-y-2 text-gray-700 dark:text-gray-300'>
-              <li>
-                • If you want the visual representation of the weather then you
-                have to include the word weather. (e.g., "What's the weather in
-                NYC?")
-              </li>
-              <li>
-                • Ask about weather in any city (e.g., "What's the weather in
-                Tokyo?")
-              </li>
-              <li>• Compare weather between cities</li>
-              <li>• Ask about specific conditions (temperature, wind, etc.)</li>
-              <li>• Get real-time weather updates</li>
+              {instructions.map((instruction, index) => (
+                <li
+                  key={index}
+                  dangerouslySetInnerHTML={{ __html: `• ${instruction.text}` }}
+                />
+              ))}
             </ul>
           </div>
         )}
